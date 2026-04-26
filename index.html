@@ -90,7 +90,6 @@
 
         button:hover { transform: scale(1.05); background: white; }
 
-        /* כפתור מורה דיסקרטי */
         .teacher-btn {
             position: fixed;
             bottom: 10px;
@@ -145,7 +144,7 @@
             <p>1. יש לעגל מסות מולריות למספרים שלמים.</p>
             <p>2. חובה לרשום יחידות באנגלית (מלאות או קיצורים).</p>
             <p>3. <strong>עליכם לרשום את התרגיל ודרך הפתרון במחברת הכיתה.</strong></p>
-            <p>4. <strong>פורמט:</strong> מספר, רווח, יחידה (לדוגמה: <span class="formula">10 g</span>).</p>
+            <p>4. <strong>פורמט:</strong> מספר, רווח, יחידה (לדוגמה: 10 g או 0.5 mol).</p>
         </div>
         <button onclick="startPart(1)">התחל שלב א'</button>
     </div>
@@ -170,7 +169,7 @@
 
     <div id="slide-gate-1" class="slide">
         <h1>שער אבטחה 1</h1>
-        <p>הזינו קוד נטרול משלב א':</p>
+        <p>הזינו קוד נטרול משלב א' (8649):</p>
         <input type="text" id="code-1" maxlength="4" style="letter-spacing: 20px; width: 350px;">
         <br>
         <button onclick="checkGate(1, '8649', 'slide-v2', 'vid-phase2')">פתח שער</button>
@@ -186,12 +185,18 @@
 
     <div id="slide-gate-2" class="slide">
         <h1>שער אבטחה 2</h1>
-        <p>הזינו קוד נטרול משלב ב':</p>
+        <p>הזינו קוד נטרול משלב ב' (DAF):</p>
         <input type="text" id="code-2" maxlength="3" style="letter-spacing: 20px; width: 300px; text-transform: uppercase;">
         <br>
-        <button onclick="checkGate(2, 'DAF', 'slide-brief-part3')">פתח שער</button>
+        <button onclick="checkGate(2, 'DAF', 'slide-v3', 'vid-phase3')">פתח שער</button>
         <br>
         <button class="restart-stage-btn" onclick="startPart(2)">שכחתי את הקוד - חזור לתחילת השלב</button>
+    </div>
+
+    <div id="slide-v3" class="slide">
+        <h1>יוצר קשר עם יחידת הנוגדנים...</h1>
+        <div class="video-box"><video id="vid-phase3"><source src="phase3.mp4" type="video/mp4"></video></div>
+        <button id="btn-v3" style="display:none;" onclick="goToSlide('slide-brief-part3')">המשך להנחיות שלב ג'</button>
     </div>
 
     <div id="slide-brief-part3" class="slide">
@@ -201,19 +206,14 @@
             <p>היעזרו בגימטריה לקבלת הקוד הסופי.</p>
             <p><strong>הרמז הוא: הראשון קובע.</strong></p>
         </div>
-        <button onclick="playVideo('slide-v3', 'vid-phase3')">המשך למשימה</button>
-    </div>
-
-    <div id="slide-v3" class="slide">
-        <div class="video-box"><video id="vid-phase3"><source src="phase3.mp4" type="video/mp4"></video></div>
-        <button id="btn-v3" style="display:none;" onclick="startPart(3)">התחל תרגיל ראשון</button>
+        <button onclick="startPart(3)">התחל תרגיל ראשון</button>
     </div>
 
     <div id="slide-gate-final" class="slide">
         <h1>שער אבטחה סופי</h1>
         <div class="video-box"><video id="vid-gate"><source src="gate.mp4" type="video/mp4"></video></div>
         <div id="final-lock-zone" style="display:none;">
-            <p>הזינו קוד נטרול משלב ג':</p>
+            <p>הזינו קוד נטרול משלב ג' (9823):</p>
             <input type="text" id="code-final" maxlength="4" style="letter-spacing: 20px; width: 350px;">
             <br>
             <button onclick="checkGate('final', '9823', 'slide-victory', 'vid-victory')">נטרל וירוס</button>
@@ -225,6 +225,7 @@
     <div id="slide-victory" class="slide">
         <h1 style="color: var(--neon-green);">המערכת נוטרלה!</h1>
         <div class="video-box"><video id="vid-victory" controls><source src="victory.mp4" type="video/mp4"></video></div>
+        <p>עבודה מצוינת! הצלתם את המעבדה.</p>
         <button onclick="location.reload()">סיום</button>
     </div>
 
@@ -241,119 +242,71 @@
     const part2Rewards = ["D", "A", "F"];
     const part3Rewards = ["💍", "🥼", "🏠", "📈"];
 
+    const unitGroups = {
+        mol: ["mol", "mole", "mols", "moles"],
+        g: ["g", "gr", "gram", "grams"],
+        l: ["l", "liter", "liters"],
+        ml: ["ml", "milliliter", "milliliters"],
+        pct: ["%", "percent", "percentage"]
+    };
+
     const puzzles = {
         1: [
-            { units: ["mol"], gen: () => { const m = (Math.floor(Math.random()*15)+1)*18; return { text: `כמה מול גלוקוז <span class="formula">C₆H₁₂O₆</span> יש ב-${m} גרם?`, ans: m/180 }; }},
-            { units: ["mol"], gen: () => { const v = (Math.floor(Math.random()*20)+1)*2.5; return { text: `השתחררו ${v} ליטר חמצן (Vm=25 L/mol). כמה מול גז יש?`, ans: v/25 }; }},
-            { units: ["mol"], gen: () => { const v = (Math.floor(Math.random()*10)+1)*50; const c = (Math.floor(Math.random()*5)+1)*0.1; return { text: `כמה מול <span class="formula">HCl</span> יש ב-${v} מ"ל תמיסה בריכוז ${c.toFixed(1)}M?`, ans: (v/1000)*c }; }},
-            { units: ["mol"], gen: () => { const n = (Math.floor(Math.random()*10)+1)*1.204e23; return { text: `בכלי יש ${n.toExponential(2)} אטומי מימן. כמה מול מולקולות מים יש?`, ans: (n/6.022e23)/2 }; }}
+            { units: "mol", gen: () => { const m = (Math.floor(Math.random()*25)+1)*18; return { text: `כמה מול גלוקוז <span class="formula">C₆H₁₂O₆</span> יש ב-${m} גרם?`, ans: m/180 }; }},
+            { units: "mol", gen: () => { const vm = Math.floor(Math.random()*31)+10; const v = (Math.floor(Math.random()*20)+1)*2.5; return { text: `השתחררו ${v} ליטר חמצן. בתנאי הניסוי 1 מול גז תופס נפח של ${vm} ליטר. כמה מול גז יש?`, ans: v/vm }; }},
+            { units: "mol", gen: () => { const v = (Math.floor(Math.random()*10)+1)*50; const c = (Math.floor(Math.random()*8)+1)*0.05; return { text: `כמה מול <span class="formula">HCl</span> יש ב-${v} מ\"ל תמיסה בריכוז ${c.toFixed(2)}M?`, ans: (v/1000)*c }; }},
+            { units: "mol", gen: () => { const n = (Math.floor(Math.random()*10)+1)*1.204e23; return { text: `בכלי יש ${n.toExponential(2)} אטומי מימן. כמה מול מולקולות מים יש?`, ans: (n/6.022e23)/2 }; }}
         ],
         2: [
-            { units: ["g", "gram", "gr"], gen: () => { 
-                const v_val = (Math.floor(Math.random()*10)+1)*2.4; 
-                return { text: `בכלי נמצאים ${v_val.toFixed(1)} ליטר גז חנקן. בתנאי הניסוי 1 מול גז תופס נפח של 24 ליטר. מהי מסתו בגרמים?`, ans: (v_val/24)*28 }; 
-            }},
-            { units: ["mol"], gen: () => { 
-                const v_val = (Math.floor(Math.random()*10)+1)*100; const c_val = (Math.floor(Math.random()*5)+1)*0.1;
-                return { text: `לפניכם ${v_val} מ"ל תמיסת אלומיניום ברומי בריכוז ${c_val.toFixed(1)}M. כמה מול יוני ברום יש?`, ans: (v_val/1000)*c_val*3 }; 
-            }},
-            { units: ["l", "liter", "ml", "milliliter"], gen: () => {
-                const m_val = (Math.floor(Math.random()*5)+1)*16; const t_val = [27, 37, 47][Math.floor(Math.random()*3)]; const p_val = [1, 2][Math.floor(Math.random()*2)];
+            { units: "g", gen: () => { const v_val = (Math.floor(Math.random()*20)+5)*1.2; return { text: `בכלי נמצאים ${v_val.toFixed(1)} ליטר גז חנקן. בתנאי הניסוי 1 מול גז תופס נפח של 24 ליטר. מהי מסתו בגרמים?`, ans: (v_val/24)*28 }; }},
+            { units: "mol", gen: () => { const v_val = (Math.floor(Math.random()*15)+5)*50; const c_val = (Math.floor(Math.random()*10)+1)*0.1; return { text: `לפניכם ${v_val} מ\"ל תמיסת אלומיניום ברומי בריכוז ${c_val.toFixed(1)}M. כמה מול יוני ברום יש?`, ans: (v_val/1000)*c_val*3 }; }},
+            { units: "l", gen: () => {
+                const m_val = (Math.floor(Math.random()*10)+1)*16; 
+                const t_val = Math.floor(Math.random()*21)+27; 
+                const p_val = Math.round((Math.random()*(4.0-1.0)+1.0)*10)/10;
                 const n_val = m_val/32; const v_l = (n_val * 0.082 * (t_val + 273)) / p_val;
-                return { text: `במיכל סגור יש ${m_val} גרם חמצן בטמפ' ${t_val}°C ובלחץ ${p_val} atm. מה נפח המיכל?`, ans: v_l, isVol: true };
+                return { text: `במיכל סגור יש ${m_val} גרם חמצן בטמפ' ${t_val}°C ובלחץ של ${p_val} אטמוספירות. מה נפח המיכל?`, ans: v_l, isVol: true };
             }}
         ],
         3: [
-            { units: ["g", "gram", "gr"], gen: () => {
-                const v = (Math.floor(Math.random()*10)+4)*100; const c_cl = (Math.floor(Math.random()*5)+1)*0.1; 
-                const n_cu_63 = ((v/2000)*c_cl)*1.5*63; const n_cu_64 = ((v/2000)*c_cl)*1.5*64;
-                return { text: `<span class="formula">2Al(s)+3CuCl₂(aq)→2AlCl₃(aq)+3Cu(s)</span><br>לפניכם ${v} מיליליטר תמיסת <span class="formula">CuCl₂</span> בה ריכוז יוני הכלור הוא ${c_cl.toFixed(2)}M. מהי מסת הנחושת המקסימלית שניתן להפיק?`, ans: n_cu_64, altAns: n_cu_63, v_val: v, c_val: c_cl };
+            { units: "g", gen: () => {
+                const v = (Math.floor(Math.random()*71)+50)*10; 
+                const c_cl = (Math.floor(Math.random()*8)+1)*0.1; 
+                const target64 = (v/2000) * c_cl * 64;
+                const target63 = (v/2000) * c_cl * 63;
+                return { text: `<span class="formula">2Al(s)+3CuCl₂(aq)→2AlCl₃(aq)+3Cu(s)</span><br>לפניכם ${v} מיליליטר תמיסת <span class="formula">CuCl₂</span> בה ריכוז יוני הכלור הוא ${c_cl.toFixed(2)}M. מהי מסת הנחושת המקסימלית שניתן להפיק?`, ans: target64, altAns: target63, v_val: v, c_val: c_cl };
             }},
-            { units: ["g", "gram", "gr"], gen: (prev) => {
+            { units: "g", gen: (prev) => {
                 const n_al = ((prev.v_val/2000 * prev.c_val)) * (2/3);
                 return { text: `מהי מסת האלומיניום (Al) שהגיבה בתהליך?`, ans: n_al*27, n_al_val: n_al };
             }},
-            { units: ["g", "gram", "gr"], gen: (prev) => {
+            { units: "g", gen: (prev) => {
                 const m_al = prev.n_al_val*27; const pct = (Math.random()*0.21)+0.09; const m_t = m_al/(1-pct);
                 return { text: `מסת הסגסוגת הייתה ${m_t.toFixed(2)} גרם. מהי מסת הכסף (Ag) שהייתה בסגסוגת?`, ans: m_t-m_al, m_t_val: m_t, m_al_val: m_al };
             }},
-            { units: ["%", "percent"], gen: (prev) => {
+            { units: "pct", gen: (prev) => {
                 return { text: `מהו אחוז הכסף בסגסוגת?`, ans: ((prev.m_t_val-prev.m_al_val)/prev.m_t_val)*100 };
             }}
         ]
     };
 
-    function playLocalSound(fileName, duration = 0) {
-        try {
-            const audio = new Audio(fileName);
-            audio.play().catch(() => console.log(`Sound file ${fileName} not found or blocked.`));
-            if (duration > 0) {
-                setTimeout(() => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }, duration);
-            }
-        } catch (e) { console.log("Audio play error"); }
+    function playLocalSound(file, dur=0) {
+        try { const a = new Audio(file); a.play(); if(dur>0) setTimeout(() => { a.pause(); a.currentTime=0; }, dur); } catch(e){}
     }
 
-    function triggerConfetti() {
-        const duration = 3 * 1000;
-        const end = Date.now() + duration;
-        playLocalSound('success.mp3'); // צליל הצלחה רק כאן
-        (function frame() {
-            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
-            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
-            if (Date.now() < end) requestAnimationFrame(frame);
-        }());
-    }
-
-    function openTeacherPanel() {
-        const code = prompt("קוד מורה:");
-        if (code === "2611") goToSlide('slide-teacher');
-    }
-
-    function playVideo(slideId, vidId) {
-        goToSlide(slideId);
-        const vid = document.getElementById(vidId);
-        if(vid) {
-            vid.play();
-            vid.onended = () => {
-                if(vidId === 'vid-intro') document.getElementById('btn-v1').style.display = 'inline-block';
-                if(vidId === 'vid-phase2') document.getElementById('btn-v2').style.display = 'inline-block';
-                if(vidId === 'vid-phase3') document.getElementById('btn-v3').style.display = 'inline-block';
-                if(vidId === 'vid-gate') document.getElementById('final-lock-zone').style.display = 'block';
-            };
-        }
-    }
-
-    function goToSlide(id) {
-        document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-    }
-
-    function startPart(n) {
-        currentPart = n; currentPuzzleIdx = 0; loadPuzzle(); goToSlide('puzzle-slide');
-    }
-
-    function loadPuzzle() {
-        attempts = 0;
-        const pool = puzzles[currentPart];
-        if (currentPart === 3 && currentPuzzleIdx > 0) puzzleData = pool[currentPuzzleIdx].gen(puzzleData);
-        else puzzleData = pool[currentPuzzleIdx].gen();
-        
-        document.getElementById('puzzle-title').innerText = `שלב ${currentPart} - משימה ${currentPuzzleIdx + 1}`;
-        document.getElementById('puzzle-text').innerHTML = puzzleData.text;
-        document.getElementById('answer-input').value = "";
-        document.getElementById('feedback').innerHTML = "";
-        document.getElementById('puzzle-controls').style.display = 'block';
-        document.getElementById('teacher-call-msg').style.display = 'none';
-        document.getElementById('reset-zone').style.display = 'none';
+    function checkGate(s, secret, next, vid) {
+        const i = document.getElementById(s === 'final' ? 'code-final' : `code-${s}`).value.toUpperCase();
+        if (i === secret) {
+            playLocalSound('success.mp3'); if(s === 'final') triggerConfetti();
+            if(vid) playVideo(next, vid); else goToSlide(next);
+        } else { playLocalSound('alert.mp3', 2000); alert("קוד שגוי!"); }
     }
 
     function checkAnswer() {
-        const input = document.getElementById('answer-input').value.trim().toLowerCase();
-        const parts = input.split(" ");
-        const allowedUnits = puzzles[currentPart][currentPuzzleIdx].units;
+        const raw = document.getElementById('answer-input').value.trim().toLowerCase();
+        const parts = raw.split(" ");
+        const pool = puzzles[currentPart];
+        const reqGroup = pool[currentPuzzleIdx].units;
 
         if (parts.length < 2) {
             document.getElementById('feedback').innerHTML = `<p class="error-msg">חובה להוסיף יחידה! (למשל: 5 g)</p>`;
@@ -362,27 +315,33 @@
 
         const userVal = parseFloat(parts[0]);
         const userUnit = parts[1];
+
+        if (!unitGroups[reqGroup].includes(userUnit)) {
+            document.getElementById('feedback').innerHTML = `<p class="error-msg">יחידה לא תקינה עבור חישוב זה.</p>`;
+            return;
+        }
+
         let target = puzzleData.ans;
         let isCorrect = false;
+        let tol = target < 1 ? 0.005 : 0.2; // Tight tolerance for small numbers
 
         if (currentPart === 3 && currentPuzzleIdx === 0) {
             if (Math.abs(userVal - target) < 0.2 || Math.abs(userVal - puzzleData.altAns) < 0.2) isCorrect = true;
         } else {
-            if (puzzleData.isVol && (userUnit === 'ml' || userUnit === 'milliliter')) target *= 1000;
-            if (Math.abs(userVal - target) < 0.2) isCorrect = true;
+            if (puzzleData.isVol && (userUnit.startsWith('ml'))) target *= 1000;
+            if (Math.abs(userVal - target) < tol) isCorrect = true;
         }
 
         if (isCorrect) {
-            let reward = "";
-            if (currentPart === 1) reward = `ספרה: ${part1Rewards[currentPuzzleIdx]}`;
-            if (currentPart === 2) reward = `אות: ${part2Rewards[currentPuzzleIdx]}`;
-            if (currentPart === 3) reward = `<span class="icon-reward">${part3Rewards[currentPuzzleIdx]}</span>`;
-            
-            document.getElementById('feedback').innerHTML = `<p class="success-msg">נכון! ${reward}</p>`;
-            
+            playLocalSound('success.mp3');
+            let r = "";
+            if (currentPart === 1) r = `ספרה: ${part1Rewards[currentPuzzleIdx]}`;
+            if (currentPart === 2) r = `אות: ${part2Rewards[currentPuzzleIdx]}`;
+            if (currentPart === 3) r = `<span class="icon-reward">${part3Rewards[currentPuzzleIdx]}</span>`;
+            document.getElementById('feedback').innerHTML = `<p class="success-msg">נכון! ${r}</p>`;
             setTimeout(() => {
                 currentPuzzleIdx++;
-                if (currentPuzzleIdx < puzzles[currentPart].length) loadPuzzle();
+                if (currentPuzzleIdx < pool.length) loadPuzzle();
                 else {
                     if (currentPart === 1) goToSlide('slide-gate-1');
                     else if (currentPart === 2) goToSlide('slide-gate-2');
@@ -393,45 +352,36 @@
             attempts++;
             if (attempts >= 2) lockPuzzle();
             else {
-                document.getElementById('feedback').innerHTML = `<p class="error-msg">טעות. הנתונים השתנו.</p>`;
-                if (currentPart !== 3) {
-                    puzzleData = puzzles[currentPart][currentPuzzleIdx].gen();
-                    document.getElementById('puzzle-text').innerHTML = puzzleData.text;
-                }
+                document.getElementById('feedback').innerHTML = `<p class="error-msg">טעות במספר. הנתונים השתנו.</p>`;
+                if (currentPart !== 3) { puzzleData = pool[currentPuzzleIdx].gen(); document.getElementById('puzzle-text').innerHTML = puzzleData.text; }
             }
         }
     }
 
+    function triggerConfetti() {
+        const d = 3 * 1000; const e = Date.now() + d;
+        (function f() { confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } }); confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } }); if (Date.now() < e) requestAnimationFrame(f); }());
+    }
+
+    function openTeacherPanel() { const c = prompt("קוד מורה:"); if (c === "2611") goToSlide('slide-teacher'); }
+    function goToSlide(id) { document.querySelectorAll('.slide').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function startPart(n) { currentPart = n; currentPuzzleIdx = 0; loadPuzzle(); goToSlide('puzzle-slide'); }
+    function playVideo(s, v) { goToSlide(s); const vid = document.getElementById(v); vid.play(); vid.onended = () => { if(v === 'vid-intro') document.getElementById('btn-v1').style.display = 'inline-block'; if(v === 'vid-phase2') document.getElementById('btn-v2').style.display = 'inline-block'; if(v === 'vid-phase3') document.getElementById('btn-v3').style.display = 'inline-block'; if(v === 'vid-gate') document.getElementById('final-lock-zone').style.display = 'block'; }; }
+    function loadPuzzle() {
+        attempts = 0; const pool = puzzles[currentPart];
+        puzzleData = (currentPart === 3 && currentPuzzleIdx > 0) ? pool[currentPuzzleIdx].gen(puzzleData) : pool[currentPuzzleIdx].gen();
+        document.getElementById('puzzle-title').innerText = `שלב ${currentPart} - משימה ${currentPuzzleIdx + 1}`;
+        document.getElementById('puzzle-text').innerHTML = puzzleData.text;
+        document.getElementById('answer-input').value = ""; document.getElementById('feedback').innerHTML = "";
+        document.getElementById('puzzle-controls').style.display = 'block'; document.getElementById('teacher-call-msg').style.display = 'none'; document.getElementById('reset-zone').style.display = 'none';
+    }
     function lockPuzzle() {
-        playLocalSound('alert.mp3', 2000); // אזעקה ל-2 שניות
-        document.getElementById('puzzle-controls').style.display = 'none';
-        document.getElementById('teacher-call-msg').style.display = 'block';
-        if (currentPart === 3) document.getElementById('reset-msg').innerText = "המערכת ננעלה. איפוס יוביל לתחילת השלב:";
-        else document.getElementById('reset-msg').innerText = "המערכת ננעלה. איפוס מורה בלבד:";
-
-        setTimeout(() => {
-            document.getElementById('teacher-call-msg').style.display = 'none';
-            document.getElementById('reset-zone').style.display = 'block';
-        }, 3000);
+        playLocalSound('alert.mp3', 2000); document.getElementById('puzzle-controls').style.display = 'none'; document.getElementById('teacher-call-msg').style.display = 'block';
+        setTimeout(() => { document.getElementById('teacher-call-msg').style.display = 'none'; document.getElementById('reset-zone').style.display = 'block'; }, 3000);
     }
-
     function teacherReset() {
-        const code = document.getElementById('teacher-code').value;
-        const correct = (currentPart === 1) ? "1111" : (currentPart === 2) ? "1212" : "3322";
-        if (code === correct) {
-            document.getElementById('teacher-code').value = "";
-            if (currentPart === 3) startPart(3); // איפוס שלב ג' לתחילתו
-            else loadPuzzle();
-        } else alert("קוד שגוי");
-    }
-
-    function checkGate(step, secret, nextSlide, nextVid) {
-        const input = document.getElementById(step === 'final' ? 'code-final' : `code-${step}`).value.toUpperCase();
-        if (input === secret) {
-            if (step === 'final') triggerConfetti();
-            if (nextVid) playVideo(nextSlide, nextVid);
-            else goToSlide(nextSlide);
-        } else alert("קוד שגוי!");
+        const c = document.getElementById('teacher-code').value; const k = (currentPart === 1) ? "1111" : (currentPart === 2) ? "1212" : "3322";
+        if (c === k) { document.getElementById('teacher-code').value = ""; if (currentPart === 3) startPart(3); else loadPuzzle(); } else alert("קוד שגוי");
     }
 </script>
 </body>
