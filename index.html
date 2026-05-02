@@ -151,7 +151,7 @@
 
     <div id="puzzle-slide" class="slide">
         <h2 id="puzzle-title"></h2>
-        <div id="puzzle-text" style="font-size: 3rem; margin: 40px 0;"></div>
+        <div id="puzzle-text" style="font-size: 3.2rem; margin: 40px 0;"></div>
         <div id="puzzle-controls">
             <input type="text" id="answer-input" placeholder="תשובה ויחידות">
             <br>
@@ -202,9 +202,10 @@
     <div id="slide-brief-part3" class="slide">
         <h1>שלב ג': ייצור הנוגדן</h1>
         <div style="text-align: right; background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; border-right: 12px solid var(--neon-blue); margin-bottom: 40px;">
-            <p>בסוף כל תרגיל תופיע תמונה.</p>
-            <p>היעזרו בגימטריה לקבלת הקוד הסופי.</p>
-            <p><strong>הרמז הוא: הראשון קובע.</strong></p>
+            <p>עליכם לייצר נוגדן שינטרל את הווירוס. לשם כך עליכם להפיק נחושת. ברשותכם סגסוגת של אלומיניום וכסף. בהוספת תמיסת נחושת כלורית לסגסוגת רק האלומיניום מגיב על פי התגובה הבאה:</p>
+            <p class="formula" style="text-align:center;">2Al(s) + 3CuCl₂(aq) → 2AlCl₃(aq) + 3Cu(s) (1)</p>
+            <br>
+            <p>בסוף כל תרגיל תופיע תמונה. היעזרו בגימטריה לקבלת הקוד הסופי. <strong>הרמז הוא: הראשון קובע.</strong></p>
         </div>
         <button onclick="startPart(3)">התחל תרגיל ראשון</button>
     </div>
@@ -270,7 +271,7 @@
             { units: "g", gen: () => {
                 const v = (Math.floor(Math.random()*71)+50)*10; const c_cl = (Math.floor(Math.random()*8)+1)*0.1; 
                 const target64 = (v/2000) * c_cl * 64; const target63 = (v/2000) * c_cl * 63;
-                return { text: `<span class="formula">2Al(s)+3CuCl₂(aq)→2AlCl₃(aq)+3Cu(s)</span><br>לפניכם ${v} מיליליטר תמיסת <span class="formula">CuCl₂</span> בה ריכוז יוני הכלור הוא ${c_cl.toFixed(2)}M. מהי מסת הנחושת המקסימלית שניתן להפיק?`, ans: target64, altAns: target63, v_val: v, c_val: c_cl };
+                return { text: `לפניכם ${v} מיליליטר תמיסת <span class="formula">CuCl₂</span> בה ריכוז יוני הכלור הוא ${c_cl.toFixed(2)}M. מהי מסת הנחושת המקסימלית שניתן להפיק?`, ans: target64, altAns: target63, v_val: v, c_val: c_cl };
             }},
             { units: "g", gen: (prev) => {
                 const n_al = ((prev.v_val/2000 * prev.c_val)) * (2/3);
@@ -297,7 +298,6 @@
     function checkGate(s, secret, next, vid) {
         const i = document.getElementById(s === 'final' ? 'code-final' : `code-${s}`).value.toUpperCase();
         if (i === secret) {
-            // אם זה המנעול הסופי, נגן את ויקטורי, אחר כך הצלחה רגילה
             if(s === 'final') {
                 playLocalSound('victory.mp3'); 
                 triggerConfetti();
@@ -342,7 +342,6 @@
         }
 
         if (isCorrect) {
-            // בכל תשובה נכונה - סאונד הצלחה
             playLocalSound('success.mp3');
             let reward = "";
             if (currentPart === 1) reward = `ספרה: ${part1Rewards[currentPuzzleIdx]}`;
